@@ -37,6 +37,20 @@ db.exec(`
   )
 `);
 
+// Khởi tạo bảng Friends
+db.exec(`
+  CREATE TABLE IF NOT EXISTS friends (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    user_id INTEGER,
+    friend_id INTEGER,
+    status TEXT DEFAULT 'pending', -- 'pending', 'accepted'
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (friend_id) REFERENCES users (id),
+    UNIQUE(user_id, friend_id)
+  )
+`);
+
 const bcrypt = require('bcryptjs');
 
 // Seed Bot Users

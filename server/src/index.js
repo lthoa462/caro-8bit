@@ -57,6 +57,35 @@ app.post('/api/user/purchase', authMiddleware, async (req, res) => {
   res.json({ success: true, pixel_coins: user.pixel_coins - cost, purchased_items: purchased });
 });
 
+// Social Routes
+app.get('/api/users/search', authMiddleware, (req, res) => {
+  const { query } = req.query;
+  const users = db.prepare('SELECT id, username, elo_rating, avatar_id FROM users WHERE username LIKE ? AND id != ? LIMIT 10')
+    .all(`%${query}%`, req.userId);
+  res.json(users);
+});
+
+app.post('/api/friends/add', authMiddleware, (req, res) => {
+  const { friendId } = req.body;
+  try {
+    db.prepare('INSERT INTO friends (user_id, friend_id, status) VALUES (?, ?, ?)')
+      .run(req.userId, friendId, 'pending');
+    res.json({ success: true });
+  } catch (e) {
+    res.status(400).json({ error: 'Already sent request or already friends' });
+  }
+});
+
+app.get('/api/friends', authMiddleware, (req, res) => {
+  const friends = db.prepare(`
+    SELECT u.id, u.username, u.elo_rating, u.avatar_id, f.status 
+    FROM users u 
+    JOIN friends f ON (f.friend_id = u.id OR f.user_id = u.id) 
+    WHERE (f.user_id = ? OR f.friend_id = ?) AND u.id != ?
+  `).all(req.userId, req.userId, req.userId);
+  res.json(friends);
+});
+
 // Protected Route Example
 app.get('/api/me', authMiddleware, (req, res) => {
   const user = db.prepare('SELECT id, username, elo_rating, total_wins, avatar_id, theme_id FROM users WHERE id = ?').get(req.userId);

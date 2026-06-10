@@ -36,6 +36,10 @@ function App() {
   const [joinId, setJoinId] = useState('');
   const [showProfile, setShowProfile] = useState(false);
   const [showBotModal, setShowBotModal] = useState(false);
+  const [activeLobbyTab, setActiveLobbyTab] = useState<'play' | 'social'>('play');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [friends, setFriends] = useState<any[]>([]);
   const [botConfig, setBotConfig] = useState({ difficulty: 'medium', symbol: 'Random' });
   const [replayMatchId, setReplayMatchId] = useState<number | null>(null);
   const [isMuted, setIsMuted] = useState(() => {
@@ -243,6 +247,48 @@ function App() {
     localStorage.setItem('user', JSON.stringify(updatedUser));
   };
 
+  const searchUsers = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    const res = await fetch(`${API_BASE_URL}/api/users/search?query=${searchQuery}`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    setSearchResults(data);
+  };
+
+  const addFriend = async (friendId: number) => {
+    const res = await fetch(`${API_BASE_URL}/api/friends/add`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify({ friendId })
+    });
+    if (res.ok) {
+      alert('Friend request sent!');
+      fetchFriends();
+    } else {
+      const data = await res.json();
+      alert(data.error);
+    }
+  };
+
+  const fetchFriends = async () => {
+    const res = await fetch(`${API_BASE_URL}/api/friends`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    const data = await res.json();
+    setFriends(data);
+  };
+
+  useEffect(() => {
+    if (user && token && activeLobbyTab === 'social') {
+      fetchFriends();
+    }
+  }, [user, token, activeLobbyTab]);
+
   return (
     <div className={`app-container ${(room?.theme_id || user?.theme_id) || 'classic'} ${socket ? 'socket-connected' : ''}`}>
       {user ? (
@@ -309,27 +355,67 @@ function App() {
         ) : (
           <div className="lobby-container">
             <div className="lobby pixel-border">
-              <div className="lobby-actions">
-                <button className="create-btn bot-btn" style={{ backgroundColor: '#9b59b6', marginBottom: '10px' }} onClick={() => setShowBotModal(true)}>PLAY WITH BOT</button>
-                <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0', opacity: 0.6 }}>
-                  <div style={{ flex: 1, height: '2px', backgroundColor: '#000' }}></div>
-                  <span style={{ margin: '0 10px', fontSize: '0.5rem' }}>OR ONLINE</span>
-                  <div style={{ flex: 1, height: '2px', backgroundColor: '#000' }}></div>
-                </div>
-                <button className="create-btn" onClick={createRoom}>CREATE ROOM</button>
-                <button className="join-btn" onClick={joinRandom}>JOIN RANDOM</button>
-                
-                <form className="join-code-form" onSubmit={joinByCode}>
-                  <input 
-                    type="text" 
-                    placeholder="ROOM CODE" 
-                    value={joinId}
-                    onChange={(e) => setJoinId(e.target.value)}
-                    maxLength={6}
-                  />
-                  <button type="submit">JOIN</button>
-                </form>
+              <div className="lobby-tabs">
+                <button className={activeLobbyTab === 'play' ? 'active' : ''} onClick={() => setActiveLobbyTab('play')}>PLAY</button>
+                <button className={activeLobbyTab === 'social' ? 'active' : ''} onClick={() => setActiveLobbyTab('social')}>SOCIAL</button>
               </div>
+
+              {activeLobbyTab === 'play' ? (
+                <div className="lobby-actions">
+                  <button className="create-btn bot-btn" style={{ backgroundColor: '#9b59b6', marginBottom: '10px' }} onClick={() => setShowBotModal(true)}>PLAY WITH BOT</button>
+                  <div style={{ display: 'flex', alignItems: 'center', margin: '10px 0', opacity: 0.6 }}>
+                    <div style={{ flex: 1, height: '2px', backgroundColor: '#000' }}></div>
+                    <span style={{ margin: '0 10px', fontSize: '0.5rem' }}>OR ONLINE</span>
+                    <div style={{ flex: 1, height: '2px', backgroundColor: '#000' }}></div>
+                  </div>
+                  <button className="create-btn" onClick={createRoom}>CREATE ROOM</button>
+                  <button className="join-btn" onClick={joinRandom}>JOIN RANDOM</button>
+                  
+                  <form className="join-code-form" onSubmit={joinByCode}>
+                    <input 
+                      type="text" 
+                      placeholder="ROOM CODE" 
+                      value={joinId}
+                      onChange={(e) => setJoinId(e.target.value)}
+                      maxLength={6}
+                    />
+                    <button type="submit">JOIN</button>
+                  </form>
+                </div>
+              ) : (
+                <div className="social-tab">
+                  <form className="user-search-form" onSubmit={searchUsers}>
+                    <input 
+                      type="text" 
+                      placeholder="FIND USERS..." 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                    <button type="submit">SEARCH</button>
+                  </form>
+
+                  {searchResults.length > 0 && (
+                    <div className="search-results pixel-border">
+                      {searchResults.map(u => (
+                        <div key={u.id} className="search-item">
+                          <span>{AVATAR_MAP[u.avatar_id]} {u.username} ({u.elo_rating})</span>
+                          <button onClick={() => addFriend(u.id)}>ADD</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="friends-list">
+                    <h4>FRIENDS</h4>
+                    {friends.length === 0 ? <p>NO FRIENDS YET</p> : friends.map(f => (
+                      <div key={f.id} className="friend-item pixel-border">
+                        <span className="friend-info">{AVATAR_MAP[f.avatar_id]} {f.username}</span>
+                        <span className={`friend-status ${f.status}`}>{f.status.toUpperCase()}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
             <Leaderboard />
           </div>
