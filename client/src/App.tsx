@@ -8,6 +8,7 @@ import Replay from './components/Replay'
 import { useSocket } from './hooks/useSocket'
 import * as SoundManager from './audio/soundManager'
 import * as Tone from 'tone'
+import { getRankTier } from './utils/rankUtils'
 
 interface User {
   id: number;
@@ -253,6 +254,10 @@ function App() {
             <div className="header-center" onClick={() => setShowProfile(true)}>
               <span className="header-username">{user.username}</span>
               <div className="header-stats">
+                <span className="rank-badge" style={{ color: getRankTier(user.elo_rating).color }}>
+                  {getRankTier(user.elo_rating).icon} {getRankTier(user.elo_rating).name}
+                </span>
+                <span className="stats-separator">|</span>
                 <span>ELO: <strong className="header-elo">{user.elo_rating || 1000}</strong></span>
                 <span className="stats-separator">|</span>
                 <span>WINS: <strong>{user.total_wins || 0}</strong></span>

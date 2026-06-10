@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './Profile.css';
 import { API_BASE_URL } from '../config';
+import { getRankTier } from '../utils/rankUtils';
 
 interface Match {
   id: number;
@@ -96,6 +97,11 @@ const Profile: React.FC<ProfileProps> = ({ user, onClose, onUpdate, onViewReplay
             </div>
             <div className="stats-info">
               <h3>{user.username}</h3>
+              <div className="rank-display">
+                <span className="rank-name" style={{ color: getRankTier(user.elo_rating).color }}>
+                  {getRankTier(user.elo_rating).icon} {getRankTier(user.elo_rating).name}
+                </span>
+              </div>
               <p>ELO: <span className="elo">{user.elo_rating}</span></p>
               <p>WINS: {user.total_wins}</p>
             </div>

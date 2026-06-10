@@ -64,7 +64,16 @@
 
 .stats-info h3 {
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 5px;
+}
+
+.rank-display {
+  margin-bottom: 8px;
+}
+
+.rank-name {
+  font-size: 0.65rem;
+  font-weight: bold;
 }
 
 .stats-info p {
