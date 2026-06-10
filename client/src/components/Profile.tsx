@@ -18,6 +18,8 @@ interface User {
   username: string;
   elo_rating: number;
   total_wins: number;
+  pixel_coins: number;
+  purchased_items: string;
   avatar_id: number;
   theme_id: string;
 }
@@ -104,6 +106,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onClose, onUpdate, onViewReplay
               </div>
               <p>ELO: <span className="elo">{user.elo_rating}</span></p>
               <p>WINS: {user.total_wins}</p>
+              <p>COINS: <span className="coins">💰 {user.pixel_coins}</span></p>
             </div>
           </section>
 

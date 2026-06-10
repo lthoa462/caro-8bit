@@ -82,6 +82,9 @@
   margin: 5px 0;
 }
 
+.stats-info .elo { color: #2ecc71; }
+.stats-info .coins { color: #f1c40f; }
+
 .custom-section h4, .history-section h4 {
   font-size: 0.8rem;
   color: #f1c40f;

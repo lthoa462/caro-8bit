@@ -15,6 +15,8 @@ interface User {
   username: string;
   elo_rating: number;
   total_wins: number;
+  pixel_coins: number;
+  purchased_items: string;
   avatar_id: number;
   theme_id: string;
 }
@@ -133,7 +135,12 @@ function App() {
         if (currentUser && updatedRoom.winner === currentUser.id) {
           SoundManager.playWinSound();
           if (eloUpdates) {
-            const updatedUser = { ...currentUser, elo_rating: eloUpdates.newWinnerElo, total_wins: currentUser.total_wins + 1 };
+            const updatedUser = { 
+              ...currentUser, 
+              elo_rating: eloUpdates.newWinnerElo, 
+              total_wins: currentUser.total_wins + 1,
+              pixel_coins: currentUser.pixel_coins + 10 
+            };
             setUser(updatedUser);
             localStorage.setItem('user', JSON.stringify(updatedUser));
           }
@@ -257,6 +264,8 @@ function App() {
                 <span className="rank-badge" style={{ color: getRankTier(user.elo_rating).color }}>
                   {getRankTier(user.elo_rating).icon} {getRankTier(user.elo_rating).name}
                 </span>
+                <span className="stats-separator">|</span>
+                <span className="coins-display">💰 <strong>{user.pixel_coins || 0}</strong></span>
                 <span className="stats-separator">|</span>
                 <span>ELO: <strong className="header-elo">{user.elo_rating || 1000}</strong></span>
                 <span className="stats-separator">|</span>

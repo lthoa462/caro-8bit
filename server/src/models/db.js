@@ -13,6 +13,8 @@ db.exec(`
     password TEXT NOT NULL,
     elo_rating INTEGER DEFAULT 1000,
     total_wins INTEGER DEFAULT 0,
+    pixel_coins INTEGER DEFAULT 0,
+    purchased_items TEXT DEFAULT '[]',
     avatar_id INTEGER DEFAULT 1,
     theme_id TEXT DEFAULT 'classic',
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP

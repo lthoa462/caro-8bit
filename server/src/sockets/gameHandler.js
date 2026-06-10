@@ -48,7 +48,7 @@ const updateElo = (db, winnerId, loserId) => {
   const newWinnerElo = Math.round(winner.elo_rating + K * (1 - expectedWinner));
   const newLoserElo = Math.round(loser.elo_rating + K * (0 - expectedLoser));
 
-  db.prepare('UPDATE users SET elo_rating = ?, total_wins = ? WHERE id = ?').run(newWinnerElo, winner.total_wins + 1, winnerId);
+  db.prepare('UPDATE users SET elo_rating = ?, total_wins = ?, pixel_coins = pixel_coins + 10 WHERE id = ?').run(newWinnerElo, winner.total_wins + 1, winnerId);
   db.prepare('UPDATE users SET elo_rating = ? WHERE id = ?').run(newLoserElo, loserId);
 
   return { newWinnerElo, newLoserElo };
