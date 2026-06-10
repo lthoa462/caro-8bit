@@ -36,6 +36,27 @@ app.put('/api/user/profile', authMiddleware, userController.updateProfile);
 app.get('/api/matches/history', authMiddleware, userController.getMatchHistory);
 app.get('/api/matches/:id', authMiddleware, userController.getMatchDetail);
 
+// Shop Routes
+app.post('/api/user/purchase', authMiddleware, async (req, res) => {
+  const { itemId, cost } = req.body;
+  const user = db.prepare('SELECT pixel_coins, purchased_items FROM users WHERE id = ?').get(req.userId);
+  
+  if (user.pixel_coins < cost) {
+    return res.status(400).json({ error: 'Not enough coins' });
+  }
+
+  const purchased = JSON.parse(user.purchased_items || '[]');
+  if (purchased.includes(itemId)) {
+    return res.status(400).json({ error: 'Item already owned' });
+  }
+
+  purchased.push(itemId);
+  db.prepare('UPDATE users SET pixel_coins = pixel_coins - ?, purchased_items = ? WHERE id = ?')
+    .run(cost, JSON.stringify(purchased), req.userId);
+
+  res.json({ success: true, pixel_coins: user.pixel_coins - cost, purchased_items: purchased });
+});
+
 // Protected Route Example
 app.get('/api/me', authMiddleware, (req, res) => {
   const user = db.prepare('SELECT id, username, elo_rating, total_wins, avatar_id, theme_id FROM users WHERE id = ?').get(req.userId);
