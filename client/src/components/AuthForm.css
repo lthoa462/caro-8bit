@@ -1,0 +1,94 @@
+.auth-form {
+  background-color: #34495e;
+  padding: 30px;
+  width: 100%;
+  max-width: 400px;
+}
+
+.auth-form h2 {
+  margin-bottom: 25px;
+  color: #f1c40f;
+}
+
+.input-group {
+  margin-bottom: 20px;
+  text-align: left;
+}
+
+.input-group label {
+  display: block;
+  font-size: 0.7rem;
+  margin-bottom: 8px;
+}
+
+.input-group input {
+  width: 100%;
+  padding: 10px;
+  font-family: 'Press Start 2P', cursive;
+  font-size: 0.8rem;
+  background-color: #ecf0f1;
+  border: 4px solid #000;
+  outline: none;
+}
+
+.error-msg {
+  color: #e74c3c;
+  font-size: 0.6rem;
+  margin-bottom: 15px;
+}
+
+.success-msg {
+  color: #2ecc71;
+  font-size: 0.6rem;
+  margin-bottom: 15px;
+}
+
+.submit-btn {
+  width: 100%;
+  margin-top: 10px;
+  background-color: #27ae60;
+}
+
+.switch-text {
+  margin-top: 20px;
+  font-size: 0.5rem;
+  cursor: pointer;
+  color: #bdc3c7;
+  text-decoration: underline;
+}
+
+.switch-text:hover {
+  color: #fff;
+}
+
+@media (max-width: 768px) {
+  .auth-form {
+    padding: 20px 15px;
+    max-width: 100%;
+  }
+
+  .auth-form h2 {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+  }
+
+  .input-group label {
+    font-size: 0.6rem;
+  }
+
+  .input-group input {
+    /* Fix iOS Safari auto-zoom: font-size phải ≥ 16px */
+    font-size: 16px;
+    padding: 12px 10px;
+  }
+
+  .submit-btn {
+    padding: 12px 20px;
+    font-size: 0.7rem;
+  }
+
+  .switch-text {
+    font-size: 0.45rem;
+    margin-top: 15px;
+  }
+}

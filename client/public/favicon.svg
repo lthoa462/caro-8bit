@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <!-- Background Board -->
+  <rect width="16" height="16" fill="#2c3e50" />
+  
+  <!-- Pixel Grid -->
+  <path d="M0 5h16v1H0zM0 10h16v1H0zM5 0v16h1V0zM10 0v16h1V0z" fill="#34495e" />
+
+  <!-- Pixel X (Red) -->
+  <path d="M2 2h2v2H2zM4 4h2v2H4zM6 6h2v2H6zM4 8h2v2H4zM2 10h2v2H2z" fill="#e74c3c" />
+  
+  <!-- Pixel O (Yellow) -->
+  <path d="M12 2h2v2h-2zM11 4h1v2h-1zM11 8h1v2h-1zM12 10h2v2h-2zM14 4h1v6h-1z" fill="#f1c40f" />
+</svg>
