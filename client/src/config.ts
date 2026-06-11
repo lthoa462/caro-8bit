@@ -1,3 +1,4 @@
 // Centralized backend URL configuration
-// Change this when deploying or using tunnels/ngrok
-export const API_BASE_URL = 'http://192.168.1.13:5000';
+// - Production: empty string → Nginx proxies /api and /socket.io on same origin
+// - Development: set VITE_API_URL in client/.env.local, e.g. http://localhost:5000
+export const API_BASE_URL = import.meta.env.VITE_API_URL ?? '';
