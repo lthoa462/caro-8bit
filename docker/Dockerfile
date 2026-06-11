@@ -20,21 +20,15 @@ WORKDIR /app
 # Install runtime dependencies: dumb-init (PID 1 handler) + sqlite-libs (for better-sqlite3)
 RUN apk add --no-cache dumb-init sqlite-libs
 
-# Create a non-root user for security
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nodeuser -u 1001
-
-# Copy dependencies from builder
+# Copy dependencies from builder stage (includes compiled better-sqlite3.node)
 COPY --from=builder /app/node_modules ./node_modules
 
 # Copy server source code
 COPY server/src ./src
 COPY server/package*.json ./
 
-# Create directory for SQLite database with correct permissions
-RUN mkdir -p /app/data && chown -R nodeuser:nodejs /app
-
-USER nodeuser
+# Create SQLite data directory — run as root so the volume mount is writable
+RUN mkdir -p /app/data
 
 EXPOSE 5000
 

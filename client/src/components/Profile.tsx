@@ -261,7 +261,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onClose, onUpdate, onViewReplay
                 {achievements.map((a: any) => (
                   <div key={a.id} className={`history-item pixel-border`} style={{ opacity: a.is_unlocked ? 1 : 0.4 }}>
                     <div className="match-info">
-                      <span>{a.is_unlocked ? '🏆' : '🔒'} {a.name}</span>
+                      <span>{a.is_unlocked ? '🏆' : '🔒'} {a.title}</span>
                       <span style={{ fontSize: '0.75em', opacity: 0.8 }}>{a.description}</span>
                     </div>
                     <span className="coins" style={{ fontSize: '0.85em' }}>💰 {a.reward_coins}</span>
