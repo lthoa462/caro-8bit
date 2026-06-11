@@ -41,9 +41,7 @@ jobs:
       - name: 🔨 Build React app
         working-directory: client
         run: npm run build
-        env:
-          # Vite environment variables (thêm nếu cần)
-          # VITE_API_URL: ""  # Để trống vì dùng relative URL qua Nginx
+        # Vite env vars: để trống VITE_API_URL → dùng relative URL qua Nginx
 
       - name: 📤 Upload React dist as artifact
         uses: actions/upload-artifact@v4
