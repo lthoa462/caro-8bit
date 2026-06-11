@@ -21,23 +21,19 @@ services:
       retries: 3
       start_period: 10s
 
-  # ─── Nginx (Static files + Reverse Proxy + HTTPS) ────────────────────────────
+  # ─── Nginx (Static files + Reverse Proxy) ─────────────────────────────────────
+  # SSL/HTTPS is handled by Cloudflare — nginx only needs port 80
   nginx:
     image: nginx:1.27-alpine
     container_name: caro_nginx
     restart: unless-stopped
     ports:
       - "80:80"
-      - "443:443"
     volumes:
       # React build output (populated by CI before deploy)
       - ./client_dist:/usr/share/nginx/html:ro
       # Nginx config
       - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
-      # Let's Encrypt certificates (obtained by Certbot on the VM host)
-      - /etc/letsencrypt:/etc/letsencrypt:ro
-      # Certbot webroot challenge directory
-      - /var/www/certbot:/var/www/certbot:ro
     depends_on:
       server:
         condition: service_healthy
