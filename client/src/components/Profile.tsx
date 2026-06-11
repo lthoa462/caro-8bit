@@ -65,19 +65,30 @@ const Profile: React.FC<ProfileProps> = ({ user, onClose, onUpdate, onViewReplay
   const [history, setHistory] = useState<Match[]>([]);
   const [selectedAvatar, setSelectedAvatar] = useState(user.avatar_id);
   const [selectedTheme, setSelectedTheme] = useState(user.theme_id);
-  const [activeTab, setActiveTab] = useState<'profile' | 'shop' | 'history'>('profile');
+  const [activeTab, setActiveTab] = useState<'profile' | 'shop' | 'history' | 'achievements'>('profile');
+  const [achievements, setAchievements] = useState<any[]>([]);
 
   const purchasedItems = JSON.parse(user.purchased_items || '[]');
 
   useEffect(() => {
     const token = localStorage.getItem('token');
+    
+    // Fetch History
     fetch(`${API_BASE_URL}/api/matches/history`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => res.json())
       .then(data => setHistory(Array.isArray(data) ? data : []))
       .catch(err => console.error('Error fetching history:', err));
-  }, []);
+
+    // Fetch Achievements
+    fetch(`${API_BASE_URL}/api/achievements`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    })
+      .then(res => res.json())
+      .then(data => setAchievements(Array.isArray(data) ? data : []))
+      .catch(err => console.error('Error fetching achievements:', err));
+  }, [activeTab]);
 
   const handleSave = () => {
     const token = localStorage.getItem('token');
@@ -138,6 +149,7 @@ const Profile: React.FC<ProfileProps> = ({ user, onClose, onUpdate, onViewReplay
             <button className={activeTab === 'profile' ? 'active' : ''} onClick={() => setActiveTab('profile')}>PROFILE</button>
             <button className={activeTab === 'shop' ? 'active' : ''} onClick={() => setActiveTab('shop')}>SHOP</button>
             <button className={activeTab === 'history' ? 'active' : ''} onClick={() => setActiveTab('history')}>HISTORY</button>
+            <button className={activeTab === 'achievements' ? 'active' : ''} onClick={() => setActiveTab('achievements')}>🏆</button>
           </div>
           <button className="close-btn" onClick={onClose}>X</button>
         </div>
@@ -236,6 +248,23 @@ const Profile: React.FC<ProfileProps> = ({ user, onClose, onUpdate, onViewReplay
                       <span className="vs-text">VS {match.player1_id === user.id ? match.player2_name : match.player1_name}</span>
                     </div>
                     <button className="replay-btn" onClick={() => onViewReplay(match.id)}>REPLAY</button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+          {activeTab === 'achievements' && (
+            <section className="history-section">
+              <h4>🏆 ACHIEVEMENTS</h4>
+              <div className="history-list">
+                {achievements.length === 0 && <p style={{ textAlign: 'center', opacity: 0.6 }}>No achievements yet...</p>}
+                {achievements.map((a: any) => (
+                  <div key={a.id} className={`history-item pixel-border`} style={{ opacity: a.is_unlocked ? 1 : 0.4 }}>
+                    <div className="match-info">
+                      <span>{a.is_unlocked ? '🏆' : '🔒'} {a.name}</span>
+                      <span style={{ fontSize: '0.75em', opacity: 0.8 }}>{a.description}</span>
+                    </div>
+                    <span className="coins" style={{ fontSize: '0.85em' }}>💰 {a.reward_coins}</span>
                   </div>
                 ))}
               </div>
