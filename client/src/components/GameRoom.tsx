@@ -22,7 +22,7 @@ const GameRoom: React.FC<GameRoomProps> = ({ room, user, socket, onLeave, onMove
   const [showEmoteSelector, setShowEmoteSelector] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
 
-  const opponent = room.players.find((p: any) => p.id !== user.id);
+  const _opponent = room.players.find((p: any) => p.id !== user.id);
   const me = room.players.find((p: any) => p.id === user.id);
   const playerX = room.players.find((p: any) => p.symbol === 'X');
   const playerO = room.players.find((p: any) => p.symbol === 'O');

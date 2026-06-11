@@ -9,6 +9,7 @@ import { useSocket } from './hooks/useSocket'
 import * as SoundManager from './audio/soundManager'
 import * as Tone from 'tone'
 import { getRankTier } from './utils/rankUtils'
+import { API_BASE_URL } from './config'
 
 interface User {
   id: number;
