@@ -54,8 +54,9 @@ echo "✅ Certbot: $(certbot --version)"
 # ─── 4. Tạo thư mục ứng dụng ─────────────────────────────────────────────────
 echo ""
 echo "📁 [4/6] Tạo thư mục ~/app..."
-mkdir -p ~/app/client_dist ~/app/docker /var/www/certbot
-echo "✅ Đã tạo: ~/app, ~/app/client_dist, ~/app/docker"
+mkdir -p ~/app/client_dist ~/app/docker
+sudo mkdir -p /var/www/certbot
+echo "✅ Đã tạo: ~/app, ~/app/client_dist, ~/app/docker, /var/www/certbot"
 
 # ─── 5. Xin SSL certificate từ Let's Encrypt ──────────────────────────────────
 echo ""

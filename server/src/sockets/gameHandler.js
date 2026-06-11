@@ -51,6 +51,26 @@ const updateElo = (db, winnerId, loserId) => {
   db.prepare('UPDATE users SET elo_rating = ?, total_wins = ?, pixel_coins = pixel_coins + 10 WHERE id = ?').run(newWinnerElo, winner.total_wins + 1, winnerId);
   db.prepare('UPDATE users SET elo_rating = ? WHERE id = ?').run(newLoserElo, loserId);
 
+  // Check Achievements for winner
+  try {
+    const user = db.prepare('SELECT total_wins, elo_rating FROM users WHERE id = ?').get(winnerId);
+    const achievements = db.prepare('SELECT * FROM achievements').all();
+    const unlocked = db.prepare('SELECT achievement_id FROM user_achievements WHERE user_id = ?').all().map(a => a.achievement_id);
+
+    achievements.forEach(a => {
+      if (unlocked.includes(a.id)) return;
+      let satisfied = false;
+      if (a.requirement_type === 'wins' && user.total_wins >= a.requirement_value) satisfied = true;
+      if (a.requirement_type === 'elo' && user.elo_rating >= a.requirement_value) satisfied = true;
+      if (satisfied) {
+        db.prepare('INSERT INTO user_achievements (user_id, achievement_id) VALUES (?, ?)').run(winnerId, a.id);
+        db.prepare('UPDATE users SET pixel_coins = pixel_coins + ? WHERE id = ?').run(a.reward_coins, winnerId);
+      }
+    });
+  } catch (e) {
+    console.error('Error checking achievements:', e);
+  }
+
   return { newWinnerElo, newLoserElo };
 };
 

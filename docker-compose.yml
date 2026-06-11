@@ -1,0 +1,61 @@
+services:
+  # ─── Express + Socket.io Backend ─────────────────────────────────────────────
+  server:
+    image: ${SERVER_IMAGE:-ghcr.io/lthoa462/caro-8bit/server:latest}
+    container_name: caro_server
+    restart: unless-stopped
+    environment:
+      PORT: "5000"
+      NODE_ENV: production
+      JWT_SECRET: ${JWT_SECRET}
+      DATABASE_PATH: /app/data/database.sqlite
+    volumes:
+      # Persist SQLite database across deployments
+      - sqlite_data:/app/data
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ─── Nginx (Static files + Reverse Proxy + HTTPS) ────────────────────────────
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: caro_nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # React build output (populated by CI before deploy)
+      - ./client_dist:/usr/share/nginx/html:ro
+      # Nginx config
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      # Let's Encrypt certificates (obtained by Certbot on the VM host)
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      # Certbot webroot challenge directory
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on:
+      server:
+        condition: service_healthy
+    networks:
+      - app_network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+# ─── Named Volumes ──────────────────────────────────────────────────────────────
+volumes:
+  sqlite_data:
+    name: caro_sqlite_data
+
+# ─── Networks ───────────────────────────────────────────────────────────────────
+networks:
+  app_network:
+    name: caro_network
+    driver: bridge

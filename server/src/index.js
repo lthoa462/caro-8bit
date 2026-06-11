@@ -86,6 +86,36 @@ app.get('/api/friends', authMiddleware, (req, res) => {
   res.json(friends);
 });
 
+// Achievement Routes
+app.get('/api/achievements', authMiddleware, (req, res) => {
+  const achievements = db.prepare(`
+    SELECT a.*, (CASE WHEN ua.unlocked_at IS NOT NULL THEN 1 ELSE 0 END) as is_unlocked
+    FROM achievements a
+    LEFT JOIN user_achievements ua ON ua.achievement_id = a.id AND ua.user_id = ?
+  `).all(req.userId);
+  res.json(achievements);
+});
+
+// Logic checking achievements (internal)
+const checkAchievements = (userId) => {
+  const user = db.prepare('SELECT total_wins, elo_rating FROM users WHERE id = ?').get(userId);
+  const achievements = db.prepare('SELECT * FROM achievements').all();
+  const unlocked = db.prepare('SELECT achievement_id FROM user_achievements WHERE user_id = ?').all().map(a => a.achievement_id);
+
+  achievements.forEach(a => {
+    if (unlocked.includes(a.id)) return;
+
+    let satisfied = false;
+    if (a.requirement_type === 'wins' && user.total_wins >= a.requirement_value) satisfied = true;
+    if (a.requirement_type === 'elo' && user.elo_rating >= a.requirement_value) satisfied = true;
+
+    if (satisfied) {
+      db.prepare('INSERT INTO user_achievements (user_id, achievement_id) VALUES (?, ?)').run(userId, a.id);
+      db.prepare('UPDATE users SET pixel_coins = pixel_coins + ? WHERE id = ?').run(a.reward_coins, userId);
+    }
+  });
+};
+
 // Protected Route Example
 app.get('/api/me', authMiddleware, (req, res) => {
   const user = db.prepare('SELECT id, username, elo_rating, total_wins, avatar_id, theme_id FROM users WHERE id = ?').get(req.userId);

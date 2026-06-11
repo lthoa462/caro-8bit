@@ -51,6 +51,51 @@ db.exec(`
   )
 `);
 
+// Khởi tạo bảng Achievements
+db.exec(`
+  CREATE TABLE IF NOT EXISTS achievements (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    title TEXT NOT NULL,
+    description TEXT NOT NULL,
+    requirement_type TEXT NOT NULL, -- 'wins', 'elo', 'games'
+    requirement_value INTEGER NOT NULL,
+    reward_coins INTEGER DEFAULT 0
+  )
+`);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_achievements (
+    user_id INTEGER,
+    achievement_id INTEGER,
+    unlocked_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (user_id, achievement_id),
+    FOREIGN KEY (user_id) REFERENCES users (id),
+    FOREIGN KEY (achievement_id) REFERENCES achievements (id)
+  )
+`);
+
+// Seed Achievements
+const seedAchievements = () => {
+  const achievements = [
+    { title: 'FIRST WIN', description: 'Win your first match', type: 'wins', value: 1, reward: 50 },
+    { title: 'WINNER', description: 'Win 10 matches', type: 'wins', value: 10, reward: 200 },
+    { title: 'VETERAN', description: 'Win 50 matches', type: 'wins', value: 50, reward: 1000 },
+    { title: 'MASTER', description: 'Reach 1500 ELO', type: 'elo', value: 1500, reward: 500 },
+    { title: 'GODLIKE', description: 'Reach 2000 ELO', type: 'elo', value: 2000, reward: 2000 }
+  ];
+
+  const check = db.prepare('SELECT id FROM achievements WHERE title = ?');
+  const insert = db.prepare('INSERT INTO achievements (title, description, requirement_type, requirement_value, reward_coins) VALUES (?, ?, ?, ?, ?)');
+
+  achievements.forEach(a => {
+    if (!check.get(a.title)) {
+      insert.run(a.title, a.description, a.type, a.value, a.reward);
+    }
+  });
+};
+
+seedAchievements();
+
 const bcrypt = require('bcryptjs');
 
 // Seed Bot Users
